@@ -2,7 +2,9 @@
 
 import logging
 import time
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+JST = timezone(timedelta(hours=9))
 
 from fetch_tickers import fetch_tse_tickers
 from scan_dividends import scan_all
@@ -43,7 +45,7 @@ def _trunc(s: str, width: int) -> str:
 
 
 def build_text(stocks: list[dict], scan_info: dict) -> str:
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(JST).strftime("%Y-%m-%d")
     NW, SW = 18, 16  # name width, sector width
 
     sep = f"+------+{'-'*(NW+2)}+{'-'*(SW+2)}+-------+---------+--------+"
@@ -94,7 +96,7 @@ def main():
         with open("result.html", "w", encoding="utf-8") as f:
             f.write(f"<pre>{text}</pre>")
 
-        today = datetime.now().strftime("%Y-%m-%d")
+        today = datetime.now(JST).strftime("%Y-%m-%d")
         with open("subject.txt", "w", encoding="utf-8") as f:
             f.write(f"[配当アラート] {len(qualified)}件 ({today})")
 

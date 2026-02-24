@@ -2,7 +2,9 @@
 
 import logging
 import sys
-from datetime import datetime
+from datetime import datetime, timezone, timedelta
+
+JST = timezone(timedelta(hours=9))
 
 import yfinance as yf
 
@@ -42,7 +44,7 @@ def fetch_prices() -> list[dict]:
 
 
 def build_text(stocks: list[dict], session: str) -> str:
-    now = datetime.now().strftime("%Y-%m-%d %H:%M")
+    now = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
     total = sum(s["value"] for s in stocks)
 
     lines = []
@@ -71,7 +73,7 @@ def main(session: str):
     with open("portfolio.html", "w", encoding="utf-8") as f:
         f.write(f"<pre>{text}</pre>")
 
-    today = datetime.now().strftime("%Y-%m-%d")
+    today = datetime.now(JST).strftime("%Y-%m-%d")
     with open("portfolio_subject.txt", "w", encoding="utf-8") as f:
         f.write(f"[時価] {session} ({today})")
 
