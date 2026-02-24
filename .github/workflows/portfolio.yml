@@ -2,11 +2,12 @@ name: Portfolio Monitor
 
 on:
   schedule:
-    # 9:10 JST = 00:10 UTC
+    # スクレーピング時刻基準（通知はスクレーピング完了後に配信）
+    # 9:10 JST (00:10 UTC) - 寄り付き後
     - cron: "10 0 * * 1-5"
-    # 12:40 JST = 03:40 UTC
+    # 12:40 JST (03:40 UTC) - 後場寄り後
     - cron: "40 3 * * 1-5"
-    # 15:40 JST = 06:40 UTC
+    # 15:40 JST (06:40 UTC) - 大引け後
     - cron: "40 6 * * 1-5"
   workflow_dispatch:
     inputs:
