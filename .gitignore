@@ -5,3 +5,5 @@ __pycache__/
 .venv/
 result.html
 subject.txt
+portfolio.html
+portfolio_subject.txt
