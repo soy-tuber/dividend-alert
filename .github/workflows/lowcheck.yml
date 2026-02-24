@@ -1,0 +1,46 @@
+name: Low Price Check
+
+on:
+  schedule:
+    # 平日 12:40 JST (03:40 UTC) - 後場寄り値でチェック
+    - cron: "40 3 * * 1-5"
+  workflow_dispatch: # 手動実行
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - uses: astral-sh/setup-uv@v5
+
+      - name: Install dependencies
+        run: uv pip install --system -r requirements.txt
+
+      - name: Run low check
+        id: lowcheck
+        run: |
+          python lowcheck.py
+          if [ -s lowcheck.html ]; then
+            echo "has_results=true" >> "$GITHUB_OUTPUT"
+            echo "subject=$(cat lowcheck_subject.txt)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Send email
+        if: steps.lowcheck.outputs.has_results == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.GMAIL_ADDRESS }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: ${{ steps.lowcheck.outputs.subject }}
+          to: ${{ secrets.GMAIL_ADDRESS }}
+          from: ${{ secrets.GMAIL_ADDRESS }}
+          html_body: file://lowcheck.html
