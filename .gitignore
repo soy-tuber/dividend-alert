@@ -1,7 +1,7 @@
 __pycache__/
 *.pyc
 .env
-token.json
-client_secret*.json
 *.db
 .venv/
+result.html
+subject.txt

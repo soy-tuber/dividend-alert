@@ -25,10 +25,23 @@ jobs:
         run: uv pip install --system -r requirements.txt
 
       - name: Run screener
-        env:
-          GMAIL_CLIENT_ID: ${{ secrets.GMAIL_CLIENT_ID }}
-          GMAIL_CLIENT_SECRET: ${{ secrets.GMAIL_CLIENT_SECRET }}
-          GMAIL_REFRESH_TOKEN: ${{ secrets.GMAIL_REFRESH_TOKEN }}
-          GMAIL_SENDER: ${{ secrets.GMAIL_SENDER }}
-          GMAIL_RECIPIENT: ${{ secrets.GMAIL_RECIPIENT }}
-        run: python main.py
+        id: screener
+        run: |
+          python main.py
+          if [ -s result.html ]; then
+            echo "has_results=true" >> "$GITHUB_OUTPUT"
+            echo "subject=$(cat subject.txt)" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Send email
+        if: steps.screener.outputs.has_results == 'true'
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: smtp.gmail.com
+          server_port: 465
+          username: ${{ secrets.GMAIL_ADDRESS }}
+          password: ${{ secrets.GMAIL_APP_PASSWORD }}
+          subject: ${{ steps.screener.outputs.subject }}
+          to: ${{ secrets.GMAIL_ADDRESS }}
+          from: ${{ secrets.GMAIL_ADDRESS }}
+          html_body: file://result.html
