@@ -2,12 +2,12 @@
 
 import logging
 import time
-import unicodedata
 from datetime import datetime, timezone, timedelta
 
 import yfinance as yf
 
 from fetch_tickers import fetch_tse_tickers
+from textutil import fit
 
 JST = timezone(timedelta(hours=9))
 logger = logging.getLogger(__name__)
@@ -84,24 +84,6 @@ def scan_lows(tickers: list[dict]) -> list[dict]:
     return results
 
 
-def _width(s: str) -> int:
-    return sum(2 if unicodedata.east_asian_width(c) in ("F", "W") else 1 for c in s)
-
-
-def _pad(s: str, w: int) -> str:
-    return s + " " * (w - _width(s))
-
-
-def _trunc(s: str, w: int) -> str:
-    cur = 0
-    for i, c in enumerate(s):
-        cw = 2 if unicodedata.east_asian_width(c) in ("F", "W") else 1
-        if cur + cw > w:
-            return s[:i]
-        cur += cw
-    return s
-
-
 NW = 16
 
 
@@ -109,7 +91,7 @@ def build_text(stocks: list[dict], scan_info: dict) -> str:
     now = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
 
     sep = f"+------+{'-'*(NW+2)}+---------+---------+---------+---------+"
-    hdr = f"| code | {_pad('name', NW)} |   price |  13w lo |  26w lo |  52w lo |"
+    hdr = f"| code | {fit('name', NW)} |   price |  13w lo |  26w lo |  52w lo |"
 
     lines = []
     lines.append(f"  Low Price Screener  {now}")
@@ -119,7 +101,7 @@ def build_text(stocks: list[dict], scan_info: dict) -> str:
     lines.append(hdr)
     lines.append(sep)
     for s in stocks:
-        name = _pad(_trunc(s["name"], NW), NW)
+        name = fit(s["name"], NW)
         price = f"{s['price']:>7,.0f}"
         cols = []
         for label, _ in PERIODS:

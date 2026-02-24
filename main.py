@@ -4,11 +4,11 @@ import logging
 import time
 from datetime import datetime, timezone, timedelta
 
-JST = timezone(timedelta(hours=9))
-
 from fetch_tickers import fetch_tse_tickers
 from scan_dividends import scan_all
+from textutil import fit
 
+JST = timezone(timedelta(hours=9))
 THRESHOLD = 0.05  # 5.0%
 
 logging.basicConfig(
@@ -17,39 +17,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-
-def _width(s: str) -> int:
-    """全角2, 半角1で文字幅を計算"""
-    import unicodedata
-    w = 0
-    for c in s:
-        w += 2 if unicodedata.east_asian_width(c) in ("F", "W") else 1
-    return w
-
-
-def _pad(s: str, width: int) -> str:
-    """全角考慮で右パディング"""
-    return s + " " * (width - _width(s))
-
-
-def _trunc(s: str, width: int) -> str:
-    """全角考慮で切り詰め"""
-    w = 0
-    for i, c in enumerate(s):
-        import unicodedata
-        cw = 2 if unicodedata.east_asian_width(c) in ("F", "W") else 1
-        if w + cw > width:
-            return s[:i]
-        w += cw
-    return s
+NW = 18  # name column width
 
 
 def build_text(stocks: list[dict], scan_info: dict) -> str:
     today = datetime.now(JST).strftime("%Y-%m-%d")
-    NW, SW = 18, 16  # name width, sector width
 
-    sep = f"+------+{'-'*(NW+2)}+{'-'*(SW+2)}+-------+---------+--------+"
-    hdr = f"| code | {_pad('name', NW)} | {_pad('sector', SW)} | yield |   price |    div |"
+    sep = f"+------+{'-'*(NW+2)}+-------+---------+--------+"
+    hdr = f"| code | {fit('name', NW)} | yield |   price |    div |"
 
     lines = []
     lines.append(f"  Dividend Alert  {today}")
@@ -60,12 +35,11 @@ def build_text(stocks: list[dict], scan_info: dict) -> str:
     lines.append(sep)
     for s in stocks:
         code = s["ticker"].replace(".T", "")
-        name = _pad(_trunc(s["name"], NW), NW)
-        sector = _pad(_trunc(s["sector"], SW), SW)
+        name = fit(s["name"], NW)
         y_pct = f"{s['dividend_yield'] * 100:5.2f}%"
         price = f"{s['price']:>7,.0f}"
         div = f"{s['annual_dividend']:>6,.1f}"
-        lines.append(f"| {code} | {name} | {sector} | {y_pct} | {price} | {div} |")
+        lines.append(f"| {code} | {name} | {y_pct} | {price} | {div} |")
     lines.append(sep)
     lines.append("")
     lines.append(f"  scanned: {scan_info['total']}  duration: {scan_info['duration']}")
