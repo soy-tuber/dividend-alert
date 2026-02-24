@@ -16,28 +16,58 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 
+def _width(s: str) -> int:
+    """全角2, 半角1で文字幅を計算"""
+    import unicodedata
+    w = 0
+    for c in s:
+        w += 2 if unicodedata.east_asian_width(c) in ("F", "W") else 1
+    return w
+
+
+def _pad(s: str, width: int) -> str:
+    """全角考慮で右パディング"""
+    return s + " " * (width - _width(s))
+
+
+def _trunc(s: str, width: int) -> str:
+    """全角考慮で切り詰め"""
+    w = 0
+    for i, c in enumerate(s):
+        import unicodedata
+        cw = 2 if unicodedata.east_asian_width(c) in ("F", "W") else 1
+        if w + cw > width:
+            return s[:i]
+        w += cw
+    return s
+
+
 def build_text(stocks: list[dict], scan_info: dict) -> str:
     today = datetime.now().strftime("%Y-%m-%d")
+    NW, SW = 18, 16  # name width, sector width
+
+    sep = f"+------+{'-'*(NW+2)}+{'-'*(SW+2)}+-------+---------+--------+"
+    hdr = f"| code | {_pad('name', NW)} | {_pad('sector', SW)} | yield |   price |    div |"
 
     lines = []
-    lines.append(f"  高配当銘柄アラート  {today}")
-    lines.append(f"  利回り5.0%以上: {len(stocks)}件")
+    lines.append(f"  Dividend Alert  {today}")
+    lines.append(f"  yield >= 5.0%: {len(stocks)} stocks")
     lines.append("")
-    lines.append("+------+--------------------+------------------+-------+---------+--------+")
-    lines.append("| code | name               | sector           | yield |   price |    div |")
-    lines.append("+------+--------------------+------------------+-------+---------+--------+")
+    lines.append(sep)
+    lines.append(hdr)
+    lines.append(sep)
     for s in stocks:
         code = s["ticker"].replace(".T", "")
-        name = s["name"][:18].ljust(18)
-        sector = s["sector"][:16].ljust(16)
+        name = _pad(_trunc(s["name"], NW), NW)
+        sector = _pad(_trunc(s["sector"], SW), SW)
         y_pct = f"{s['dividend_yield'] * 100:5.2f}%"
         price = f"{s['price']:>7,.0f}"
         div = f"{s['annual_dividend']:>6,.1f}"
         lines.append(f"| {code} | {name} | {sector} | {y_pct} | {price} | {div} |")
-    lines.append("+------+--------------------+------------------+-------+---------+--------+")
+    lines.append(sep)
     lines.append("")
     lines.append(f"  scanned: {scan_info['total']}  duration: {scan_info['duration']}")
-    lines.append(f"  ※ 過去12ヶ月実績値 / 特別配当含む可能性あり")
+    lines.append(f"  * trailing 12m actual / may include special dividends")
     lines.append("")
 
     return "\n".join(lines)
