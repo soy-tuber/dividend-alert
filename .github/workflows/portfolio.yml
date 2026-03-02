@@ -47,7 +47,7 @@ jobs:
             echo "name=${{ github.event.inputs.session }}" >> "$GITHUB_OUTPUT"
           else
             HOUR=$(TZ=Asia/Tokyo date +%H)
-            if [ "$HOUR" -lt 11 ]; then
+            if [ "$HOUR" -lt 12 ]; then
               echo "name=寄り付き" >> "$GITHUB_OUTPUT"
             elif [ "$HOUR" -lt 15 ]; then
               echo "name=後場寄り" >> "$GITHUB_OUTPUT"
