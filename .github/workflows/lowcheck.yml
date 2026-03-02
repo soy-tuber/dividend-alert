@@ -14,6 +14,14 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Restore DB
+        uses: dawidd6/action-download-artifact@v6
+        with:
+          name: alerts-db
+          path: .
+          search_artifacts: true
+          if_no_artifact_found: warn
+
       - uses: actions/setup-python@v5
         with:
           python-version: "3.11"
@@ -44,3 +52,11 @@ jobs:
           to: ${{ secrets.GMAIL_ADDRESS }}
           from: ${{ secrets.GMAIL_ADDRESS }}
           html_body: file://lowcheck.html
+
+      - name: Save DB
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: alerts-db
+          path: alerts.db
+          overwrite: true

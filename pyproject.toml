@@ -1,0 +1,11 @@
+[project]
+name = "dividend-alert"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = [
+    "yfinance",
+    "pandas",
+    "openpyxl",
+    "xlrd",
+    "requests",
+]

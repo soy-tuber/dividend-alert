@@ -1,4 +1,4 @@
-"""13週・26週・52週安値スクリーニング（東証全銘柄）"""
+"""26週・52週安値スクリーニング（東証全銘柄）"""
 
 import logging
 import time
@@ -13,7 +13,6 @@ JST = timezone(timedelta(hours=9))
 logger = logging.getLogger(__name__)
 
 PERIODS = [
-    ("13w", 91),
     ("26w", 182),
     ("52w", 365),
 ]
@@ -90,8 +89,8 @@ NW = 16
 def build_text(stocks: list[dict], scan_info: dict) -> str:
     now = datetime.now(JST).strftime("%Y-%m-%d %H:%M")
 
-    sep = f"+------+{'-'*(NW+2)}+---------+---------+---------+---------+"
-    hdr = f"| code | {fit('name', NW)} |   price |  13w lo |  26w lo |  52w lo |"
+    sep = f"+------+{'-'*(NW+2)}+---------+---------+---------+"
+    hdr = f"| code | {fit('name', NW)} |   price |  26w lo |  52w lo |"
 
     lines = []
     lines.append(f"  Low Price Screener  {now}")
@@ -107,14 +106,13 @@ def build_text(stocks: list[dict], scan_info: dict) -> str:
         for label, _ in PERIODS:
             low = s["lows"][label]["low"]
             pct = s["lows"][label]["pct"]
+            val = f"{low:>7,.0f}"
             if pct < NEAR_LOW_PCT:
-                cols.append(f"  *{low:,.0f}")
-            else:
-                cols.append(f"{low:>7,.0f}")
-        c13 = cols[0].rjust(7)
-        c26 = cols[1].rjust(7)
-        c52 = cols[2].rjust(7)
-        lines.append(f"| {s['code']} | {name} | {price} | {c13} | {c26} | {c52} |")
+                val = "*" + val[1:]
+            cols.append(val)
+        c26 = cols[0]
+        c52 = cols[1]
+        lines.append(f"| {s['code']} | {name} | {price} | {c26} | {c52} |")
     lines.append(sep)
     lines.append("  * = within 1% of period low")
     lines.append("")
@@ -143,7 +141,7 @@ def main():
     text = build_text(stocks, scan_info)
 
     with open("lowcheck.html", "w", encoding="utf-8") as f:
-        f.write(f"<pre>{text}</pre>")
+        f.write(f'<pre style="font-size:11px">{text}</pre>')
 
     today = datetime.now(JST).strftime("%Y-%m-%d")
     mark = "!!" if stocks else ""
@@ -152,6 +150,10 @@ def main():
 
     with open("lowcheck_flag.txt", "w") as f:
         f.write("1" if stocks else "")
+
+    if stocks:
+        from store import save_lowcheck
+        save_lowcheck(stocks)
 
 
 if __name__ == "__main__":

@@ -75,6 +75,9 @@ def main():
             f.write(f"[配当アラート] {len(qualified)}件 ({today})")
 
         logger.info(f"result.html 出力完了 ({len(qualified)}銘柄)")
+
+        from store import save_dividend
+        save_dividend(qualified)
     else:
         logger.info("閾値以上の銘柄なし")
         with open("result.html", "w", encoding="utf-8") as f:
