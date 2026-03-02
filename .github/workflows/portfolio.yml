@@ -49,7 +49,7 @@ jobs:
             HOUR=$(TZ=Asia/Tokyo date +%H)
             if [ "$HOUR" -lt 11 ]; then
               echo "name=寄り付き" >> "$GITHUB_OUTPUT"
-            elif [ "$HOUR" -lt 14 ]; then
+            elif [ "$HOUR" -lt 15 ]; then
               echo "name=後場寄り" >> "$GITHUB_OUTPUT"
             else
               echo "name=終値" >> "$GITHUB_OUTPUT"

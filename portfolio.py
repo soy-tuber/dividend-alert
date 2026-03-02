@@ -54,18 +54,18 @@ def build_text(stocks: list[dict], session: str) -> str:
     lines = []
     lines.append(f"  {session}  {now}")
     lines.append("")
-    lines.append("+------+---------+--------+---------------+")
-    lines.append("| code |  shares | 前日比 |         value |")
-    lines.append("+------+---------+--------+---------------+")
+    lines.append("+------+---------+--------+-------------+")
+    lines.append("| code |  shares | 前日比 |       value |")
+    lines.append("+------+---------+--------+-------------+")
     for s in stocks:
         code = s["code"]
         shares = f"{s['shares']:>7,}"
         chg = f"{s['change_pct']:+.1f}%"
         chg = f"{chg:>6}"
-        value = f"{s['value']:>13,.0f}"
+        value = f"{s['value']:>11,.0f}"
         lines.append(f"| {code} | {shares} | {chg} | {value} |")
-    lines.append("+------+---------+--------+---------------+")
-    lines.append(f"  TOTAL                     {total:>13,.0f}")
+    lines.append("+------+---------+--------+-------------+")
+    lines.append(f"  TOTAL                     {total:>11,.0f}")
     lines.append("")
 
     return "\n".join(lines)
