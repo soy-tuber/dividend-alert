@@ -1,0 +1,22 @@
+# Dividend Alert - GitHub Actions Trigger (JST)
+# 設定方法: crontab -e で以下をコピペ
+#
+# 事前準備:
+#   1. GitHub Fine-grained PAT を作成 (repo: soy-tuber/dividend-alert, permissions: Actions R/W)
+#   2. GITHUB_PAT と TRIGGER のパスを書き換える
+
+GITHUB_PAT=ghp_xxxxxxxxxxxxxxxxxxxx
+TRIGGER=/home/q07025a/dividend-alert/trigger.sh
+
+# Portfolio: 寄り付き後 (09:10 JST, 平日)
+10 9 * * 1-5  $TRIGGER portfolio.yml 寄り付き
+# Portfolio: 後場寄り後 (12:40 JST, 平日)
+40 12 * * 1-5 $TRIGGER portfolio.yml 後場寄り
+# Portfolio: 大引け後 (15:40 JST, 平日)
+40 15 * * 1-5 $TRIGGER portfolio.yml 終値
+
+# Low Price Screener (12:40 JST, 平日)
+40 12 * * 1-5 $TRIGGER lowcheck.yml
+
+# High Dividend Alert (13:40 JST, 月曜のみ)
+40 13 * * 1   $TRIGGER alert.yml
