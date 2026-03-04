@@ -15,8 +15,8 @@ TRIGGER=/home/q07025a/dividend-alert/trigger.sh
 # Portfolio: 大引け後 (15:40 JST, 平日)
 40 15 * * 1-5 $TRIGGER portfolio.yml 終値
 
-# Low Price Screener (12:40 JST, 平日)
-40 12 * * 1-5 $TRIGGER lowcheck.yml
+# Low Price Screener (14:30 JST, 平日)
+30 14 * * 1-5 $TRIGGER lowcheck.yml
 
 # High Dividend Alert (13:40 JST, 月曜のみ)
 40 13 * * 1   $TRIGGER alert.yml

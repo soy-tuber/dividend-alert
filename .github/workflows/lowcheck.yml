@@ -1,10 +1,7 @@
 name: Low Price Screener
 
 on:
-  schedule:
-    # 平日 12:40 JST (03:40 UTC) - 後場寄り値でチェック
-    - cron: "40 3 * * 1-5"
-  workflow_dispatch: # 手動実行
+  workflow_dispatch: # ローカル cron から起動
 
 jobs:
   check:
