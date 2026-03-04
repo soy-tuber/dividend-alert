@@ -1,10 +1,7 @@
 name: High Dividend Alert
 
 on:
-  schedule:
-    # 毎週月曜 13:40 JST (月曜 04:40 UTC) - 後場寄り後の株価基準
-    - cron: "40 4 * * 1"
-  workflow_dispatch: # 手動実行
+  workflow_dispatch: # ローカル cron から起動
 
 jobs:
   scan-and-alert:
