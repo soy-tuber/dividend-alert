@@ -14,7 +14,7 @@ PORTFOLIO = [
     {"code": "2674", "shares": 15000},
     {"code": "8291", "shares": 50000},
     {"code": "5869", "shares": 20000},
-    {"code": "2411", "shares": 35000},
+    {"code": "2411", "shares": 50000},
 ]
 
 
